@@ -7,6 +7,13 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+st.set_page_config(
+    page_title="Mortgage Benchmark | TMC",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+
 st.image("https://raw.githubusercontent.com/koso9/Streamlit-Dashboard/main/streamlit_pic.png", use_container_width=True)
 
 
@@ -41,7 +48,7 @@ with st.expander(" See Additional Insights"):
 
 # ---- CHART 1: GROSS MARGIN ----
 # ---- INTERACTIVE CHART 1: GROSS MARGIN FILTER ----
-st.header("Gross Margin by Product Type")
+st.header("Product Margins in Motion")
 
 data = {
     "Product": ["Conventional", "Government", "Jumbo", "Other"],
@@ -73,7 +80,10 @@ st.info(
 
 
 # ---- CHART 2: APPLICATION & LOAN VOLUME % CHANGE ----
-st.header("Application and Loan Volume - MoM % Change")
+st.header("Momentum Check: Apps to Closing Snapshot")
+#"Application and Loan Volume - MoM % Change")
+
+#"Application and Loan Volume - MoM % Change")
 
 # Sample extended data
 volume_data = {
@@ -90,16 +100,21 @@ selected_channel = st.selectbox("Choose a Channel", df["Channel"].unique())
 filtered_df = df[df["Channel"] == selected_channel]
 
 # Plot
+# Corrected Chart 2 snippet
 fig, ax = plt.subplots()
 bars = ax.bar(filtered_df["Category"], filtered_df["Percent Change"], color=["skyblue", "salmon"])
 ax.set_ylabel("Percent Change (%)")
 ax.set_title(f"MoM Volume Change – {selected_channel}")
 
-# Annotate bars
 for bar in bars:
     height = bar.get_height()
-    ax.annotate(f"{height}%", xy=(bar.get_x() + bar.get_width() / 2, height),
-                xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+    ax.annotate(f"{height}%",
+                xy=(bar.get_x() + bar.get_width() / 2, height),
+                xytext=(0, 8),
+                textcoords="offset points",
+                ha='center', va='bottom')
+
+ax.set_ylim(0, max(filtered_df["Percent Change"]) + 2)
 
 st.pyplot(fig)
 st.markdown("---")
@@ -109,7 +124,7 @@ st.info(
 )
 
 # ---- CHART 3: APPLICATION TO CTC TIMELINE ----
-st.header("Average Time from Application to Clear-to-Close")
+st.header("Speed to Close: Operational Efficiency Check")
 
 # Extended data with Loan Purpose
 timeline_data = {
@@ -133,7 +148,7 @@ ax3.plot(filtered_df["Month"], filtered_df["Days"], marker='o', linestyle='-', c
 ax3.set_ylabel("Days")
 ax3.set_xlabel("Month")
 ax3.set_title(f"Avg Time from App to Clear-to-Close ({selected_purpose})")
-ax3.grid(True)
+ax3.grid(False)
 
 # Show every 2nd month label
 ax3.set_xticks(range(0, len(filtered_df["Month"]), 2))
@@ -145,7 +160,3 @@ st.info(
     "Average time from application to clear-to-close remained steady at 34 days, suggesting operational consistency.\n"
     "The January spike to 37 days now appears to be an outlier, likely driven by holiday pipeline delays."
 )
-
-
-
-
