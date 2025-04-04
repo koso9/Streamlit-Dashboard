@@ -36,7 +36,7 @@ col3.metric("\U0001F4C6 Avg CTC Days", "34", "\u00b1 0 vs Feb")
 # Expandable insights
 with st.expander(" See Additional Insights"):
     st.markdown ("""
-       - 🔻 Jumbo margins fell for the second straight month.
+    - 🔻 Jumbo margins fell for the second straight month.
     - 🟢 Conventional margin recovery suggests stronger rate locks.
     - ⚠️ Southeast region saw the biggest volume drop (15%).
     """)
