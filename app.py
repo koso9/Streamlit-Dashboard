@@ -183,7 +183,9 @@ if selected_section == "Operations":
     )
 
     st.markdown("### 🔥 Momentum Tracker: Ops Metrics Over Time")
+    st.markdown("<div style='margin-bottom: 16px;'></div>", unsafe_allow_html=True)
 
+    # --- Heatmap setup ---
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     metrics = ["CTC Days", "Gross Margin (bps)", "Pull-Through"]
@@ -218,16 +220,17 @@ if selected_section == "Operations":
         range=["#00F5A0", "#E5E7EB", "#FF6B6B"]
     )
 
+    # Altair chart tweaks for mobile readability
     heat = alt.Chart(df).mark_rect().encode(
-        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelAngle=0, labelFontSize=13, title="2024–2025")),
-        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=14, title=None)),
+        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelAngle=0, labelFontSize=11, title="2024–2025")),
+        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=12, title=None, labelPadding=8)),
         color=alt.Color("Category:N", scale=color_scale, legend=alt.Legend(title=None)),
         tooltip=["Metric", "Month", "Value"]
-    ).properties(width=800, height=200)
+    ).properties(width='container', height=180)
 
     text = alt.Chart(df).mark_text(
         baseline="middle",
-        fontSize=14
+        fontSize=12
     ).encode(
         x="Month:O",
         y="Metric:N",
@@ -237,7 +240,6 @@ if selected_section == "Operations":
 
     st.altair_chart(heat + text, use_container_width=True)
 
-# --- Production Section ---
 # --- Production Section ---
 if selected_section == "Production":
     st.subheader("What's Driving Loan Volume Trends?")
@@ -251,10 +253,9 @@ if selected_section == "Production":
     st.markdown(
         "Across the last 12 months, we've seen notable shifts: conventional loans continue to dominate overall volume, "
         "while government-backed loans experience steeper fluctuations likely tied to changing rate sensitivity among FHA/VA borrowers. "
-        "Jumbo loans, saw a late-year rebound, suggesting renewed confidence in high-balance lending. "
+        "Jumbo loans saw a late-year rebound, suggesting renewed confidence in high-balance lending. "
         "Use the filters below to explore how your performance compares and spot pockets of opportunity or concern."
     )
-
 
     # Loan type dropdown
     loan_types = ["Conventional", "Government", "Jumbo", "Other"]
@@ -270,7 +271,7 @@ if selected_section == "Production":
         "Jumbo": "#AEE6FF",         # Bright baby blue
         "Other": "#FF6B6B"          # Bright coral
     }
-    peer_gray = "#D3D3D3"  # Light modern gray
+    peer_gray = "#B0B0B0"  # Softer modern gray for Peer
 
     # Generate synthetic data
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -288,37 +289,48 @@ if selected_section == "Production":
     df = pd.DataFrame(data, columns=["Month", "Loan Type", "Peer Units", "Peer Volume", "My Units", "My Volume"])
     df_filtered = df[df["Loan Type"] == selected_loan].copy()
 
-    # Decide what to plot
+    # Choose data view
     if view_option == "Units":
-        my_vals = df_filtered["My Units"].tolist()
-        peer_vals = df_filtered["Peer Units"].tolist()
-        unit_label = "Loan Units"
+        y_data = "My Units"
+        peer_data = "Peer Units"
+        y_label = "Loan Units"
     else:
-        my_vals = (df_filtered["My Volume"] / 1e6).tolist()
-        peer_vals = (df_filtered["Peer Volume"] / 1e6).tolist()
-        unit_label = "Loan Volume ($M)"
+        y_data = "My Volume"
+        peer_data = "Peer Volume"
+        y_label = "Loan Volume ($M)"
+        df_filtered[y_data] = df_filtered[y_data] / 1e6
+        df_filtered[peer_data] = df_filtered[peer_data] / 1e6
 
-    y_pos = np.arange(len(months))
-    bar_width = 0.4
+    # Plotly bar chart
+    fig = go.Figure()
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.barh(y_pos, peer_vals, height=bar_width, label=f"Peer – {selected_loan}", color=peer_gray, edgecolor="none")
-    ax.barh(y_pos, my_vals, height=bar_width * 0.7, label=f"My Co – {selected_loan}",
-            color=loan_colors[selected_loan], edgecolor="none")
+    fig.add_trace(go.Bar(
+        y=df_filtered["Month"],
+        x=df_filtered[peer_data],
+        name="Peer Avg",
+        orientation='h',
+        marker=dict(color=peer_gray),
+        hovertemplate='Peer Avg: %{x:.2f}<extra></extra>'
+    ))
 
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(months)
-    ax.set_xlabel(unit_label, fontsize=12)
-    ax.set_title(f"12-Month Trend – {selected_loan} Loans", fontsize=14, weight="bold")
-    ax.invert_yaxis()  # Highest month on top
-    ax.grid(False)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_color("#E0E0E0")
+    fig.add_trace(go.Bar(
+        y=df_filtered["Month"],
+        x=df_filtered[y_data],
+        name="My Company",
+        orientation='h',
+        marker=dict(color=loan_colors[selected_loan]),
+        hovertemplate='My Co: %{x:.2f}<extra></extra>'
+    ))
 
-    # Move legend outside the plot
-    ax.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False)
+    fig.update_layout(
+        barmode='overlay',
+        title=f"12-Month Trend – {selected_loan} Loans",
+        xaxis_title=y_label,
+        yaxis=dict(autorange='reversed'),
+        legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center"),
+        margin=dict(t=40, b=40, l=20, r=20),
+        plot_bgcolor='white',
+        height=550,
+    )
 
-    st.pyplot(fig, use_container_width=True)
-
+    st.plotly_chart(fig, use_container_width=True)
