@@ -346,4 +346,3 @@ if selected_section == "Production":
     ax.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False)
 
     st.pyplot(fig, use_container_width=True)
-
