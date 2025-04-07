@@ -173,31 +173,6 @@ if selected_section == "Operations":
 
     st.subheader("How efficient was your Operations vs Peers?")
 
-# --- OPERATIONS PAGE ---
-if selected_section == "Operations":
-    st.markdown("## March Performance Overview")
-
-    df_kpi = pd.DataFrame({
-        "Metric": ["CTC Days", "Gross Margin (bps)", "Pull-Through"],
-        "MyCo": [32, 227, 75],
-        "Peer Avg": [34, 225, 73],
-        "Change": [-2, 6, 2],
-        "Unit": [" days", " bps", "%"]
-    })
-
-    col1, col2, col3 = st.columns(3)
-    for i, col in enumerate([col1, col2, col3]):
-        metric = df_kpi.loc[i, "Metric"]
-        myco_val = df_kpi.loc[i, "MyCo"]
-        peer_val = df_kpi.loc[i, "Peer Avg"]
-        delta = df_kpi.loc[i, "Change"]
-        unit = df_kpi.loc[i, "Unit"]
-        arrow = "↑" if delta > 0 else "↓" if delta < 0 else "→"
-        delta_text = f"{arrow}{abs(delta)}{unit}"
-        col.metric(label=metric, value=f"{myco_val}{unit}", delta=delta_text + f" vs Peer: {peer_val}{unit}")
-
-    st.subheader("How efficient was your Operations vs Peers?")
-
     st.write(
         "March marked a turning point in operational efficiency across many lending institutions. "
         "Cycle times, after months of fluctuation, have begun to stabilize—suggesting process improvements and better pipeline management. "
@@ -346,3 +321,4 @@ if selected_section == "Production":
     ax.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False)
 
     st.pyplot(fig, use_container_width=True)
+
