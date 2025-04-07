@@ -188,14 +188,15 @@ if selected_section == "Operations":
     st.markdown("### 🔥 Momentum Tracker: Ops Metrics Over Time")
 
     # Generate data for heatmap
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"]
+
     metrics = ["CTC Days", "Margin", "Pull%"]
     values = {
-        "CTC Days": [34, 33, 32, 31, 34, 35, 36, 37, 36, 34, 33, 32],
-        "Margin": [221, 223, 222, 220, 224, 225, 226, 227, 229, 228, 226, 227],
-        "Pull%": [70, 71, 72, 71, 73, 72, 74, 75, 75, 74, 75, 76]
-    }
+    "CTC Days": [36, 34, 33, 32, 34, 33],        # Last 6 from original
+    "Margin":   [229, 228, 226, 227, 221, 223],
+    "Pull%":    [75, 74, 75, 76, 70, 71]
+}
+
 
     df = pd.DataFrame([
         {"Month": m, "Metric": metric, "Value": values[metric][i]}
