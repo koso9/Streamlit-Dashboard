@@ -11,13 +11,16 @@ import altair as alt
 import random
 import plotly.graph_objects as go
 
-st.set_page_config(
-    page_title="Mortgage Benchmark | TMC",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# --- Utility: Responsive chart size ---
+def is_mobile():
+    return st.session_state.get("force_mobile", False)
 
+# Optional: Manual toggle (left sidebar if you want control)
+# st.sidebar.checkbox("Force Mobile Mode", value=False, key="force_mobile")
+
+# --- UI HEADER ---
 st.image("https://raw.githubusercontent.com/koso9/Streamlit-Dashboard/main/streamlit_pic.png", use_container_width=True)
+
 
 # --- Section Toggle ---
 selected_section = st.radio("Navigate:", ["Summary", "Production", "Operations", "Secondary"], horizontal=True)
