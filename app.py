@@ -183,9 +183,8 @@ if selected_section == "Operations":
     )
 
     st.markdown("### 🔥 Momentum Tracker: Ops Metrics Over Time")
-    st.markdown("<div style='margin-bottom: 16px;'></div>", unsafe_allow_html=True)
 
-    # --- Heatmap setup ---
+    # Generate data for heatmap
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     metrics = ["CTC Days", "Gross Margin (bps)", "Pull-Through"]
@@ -201,6 +200,7 @@ if selected_section == "Operations":
         for i, m in enumerate(months)
     ])
 
+    # Classify performance
     def classify(series):
         baseline = series.mean()
         return [
@@ -220,25 +220,23 @@ if selected_section == "Operations":
         range=["#00F5A0", "#E5E7EB", "#FF6B6B"]
     )
 
-    # Altair chart tweaks for mobile readability
-    heat = alt.Chart(df).mark_rect().encode(
-        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelAngle=0, labelFontSize=11, title="2024–2025")),
-        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=12, title=None, labelPadding=8)),
+    base = alt.Chart(df).encode(
+        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelFontSize=12, title="2024–2025")),
+        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=13, title=None)),
+    )
+
+    heat = base.mark_rect().encode(
         color=alt.Color("Category:N", scale=color_scale, legend=alt.Legend(title=None)),
         tooltip=["Metric", "Month", "Value"]
-    ).properties(width='container', height=180)
+    )
 
-    text = alt.Chart(df).mark_text(
-        baseline="middle",
-        fontSize=12
-    ).encode(
-        x="Month:O",
-        y="Metric:N",
+    text = base.mark_text(baseline="middle", fontSize=12).encode(
         text="Value Display:N",
         color=alt.value("black")
     )
 
-    st.altair_chart(heat + text, use_container_width=True)
+    st.altair_chart((heat + text).properties(width=350, height=160), use_container_width=True)
+
 
 # --- Production Section ---
 if selected_section == "Production":
@@ -264,14 +262,14 @@ if selected_section == "Production":
     # Units vs Volume toggle
     view_option = st.radio("Select View", ["Units", "Volume"], horizontal=True)
 
-    # Color mapping (TMC palette)
+    # Color mapping
     loan_colors = {
         "Conventional": "#D5FF00",  # Neon green-yellow
         "Government": "#19D3F3",    # Turquoise
         "Jumbo": "#AEE6FF",         # Bright baby blue
         "Other": "#FF6B6B"          # Bright coral
     }
-    peer_gray = "#B0B0B0"  # Softer modern gray for Peer
+    peer_gray = "#B0B0B0"
 
     # Generate synthetic data
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -289,7 +287,7 @@ if selected_section == "Production":
     df = pd.DataFrame(data, columns=["Month", "Loan Type", "Peer Units", "Peer Volume", "My Units", "My Volume"])
     df_filtered = df[df["Loan Type"] == selected_loan].copy()
 
-    # Choose data view
+    # Choose metric
     if view_option == "Units":
         y_data = "My Units"
         peer_data = "Peer Units"
@@ -301,7 +299,7 @@ if selected_section == "Production":
         df_filtered[y_data] = df_filtered[y_data] / 1e6
         df_filtered[peer_data] = df_filtered[peer_data] / 1e6
 
-    # Plotly bar chart
+    # Create Plotly figure
     fig = go.Figure()
 
     fig.add_trace(go.Bar(
@@ -322,15 +320,20 @@ if selected_section == "Production":
         hovertemplate='My Co: %{x:.2f}<extra></extra>'
     ))
 
+    # Properly apply layout AFTER fig is created
     fig.update_layout(
         barmode='overlay',
         title=f"12-Month Trend – {selected_loan} Loans",
         xaxis_title=y_label,
         yaxis=dict(autorange='reversed'),
-        legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center"),
         margin=dict(t=40, b=40, l=20, r=20),
+        legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center"),
         plot_bgcolor='white',
-        height=550,
+        height=500,
+        modebar_remove=["zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]
     )
+
+    # Optional: small spacing to avoid overlap with select boxes
+    st.markdown("<br>", unsafe_allow_html=True)
 
     st.plotly_chart(fig, use_container_width=True)
