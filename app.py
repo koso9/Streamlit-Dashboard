@@ -181,7 +181,7 @@ if selected_section == "Operations":
         "Cycle times, after months of fluctuation, have begun to stabilize—suggesting process improvements and better pipeline management. "
         "Gross margins showed modest but meaningful improvement, a positive sign as lenders continue to adapt to compressed market conditions. "
         "Notably, pull-through rates remained resilient, indicating stronger borrower commitment and possibly more strategic rate lock behavior. "
-        "This snapshot helps benchmark your position against peers and track month-over-month momentum across the past 12 months. "
+        "This snapshot helps benchmark your position against peers and track month-over-month momentum across the past 6 months. "
         "Use it to identify operational strengths, uncover emerging gaps, and prioritize focus areas as the spring market builds momentum."
     )
 
