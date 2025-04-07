@@ -153,7 +153,7 @@ if selected_section == "Operations":
     st.markdown("## March Performance Overview")
 
     df_kpi = pd.DataFrame({
-        "Metric": ["CTC Days", "Gross Margin (bps)", "Pull-Through"],
+        "Metric": ["CTC Days", "Margin", "Pull%"],
         "MyCo": [32, 227, 75],
         "Peer Avg": [34, 225, 73],
         "Change": [-2, 6, 2],
@@ -187,11 +187,11 @@ if selected_section == "Operations":
     # Generate data for heatmap
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    metrics = ["CTC Days", "Gross Margin (bps)", "Pull-Through"]
+    metrics = ["CTC Days", "Margin", "Pull%"]
     values = {
         "CTC Days": [34, 33, 32, 31, 34, 35, 36, 37, 36, 34, 33, 32],
-        "Gross Margin (bps)": [221, 223, 222, 220, 224, 225, 226, 227, 229, 228, 226, 227],
-        "Pull-Through": [70, 71, 72, 71, 73, 72, 74, 75, 75, 74, 75, 76]
+        "Margin": [221, 223, 222, 220, 224, 225, 226, 227, 229, 228, 226, 227],
+        "Pull%": [70, 71, 72, 71, 73, 72, 74, 75, 75, 74, 75, 76]
     }
 
     df = pd.DataFrame([
@@ -211,7 +211,7 @@ if selected_section == "Operations":
 
     df["Category"] = df.groupby("Metric")["Value"].transform(classify)
     df["Value Display"] = df.apply(
-        lambda row: f"{int(row['Value'])}%" if "Pull" in row["Metric"] else f"{int(row['Value'])}",
+        lambda row: f"{int(row['Value'])}%" if row["Metric"] == "Pull%" else f"{int(row['Value'])}",
         axis=1
     )
 
@@ -221,8 +221,8 @@ if selected_section == "Operations":
     )
 
     base = alt.Chart(df).encode(
-        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelFontSize=12, title="2024–2025")),
-        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=13, title=None)),
+        x=alt.X("Month:O", sort=months, axis=alt.Axis(labelFontSize=11, title="2024–2025")),
+        y=alt.Y("Metric:N", axis=alt.Axis(labelFontSize=12, title=None)),
     )
 
     heat = base.mark_rect().encode(
@@ -230,13 +230,13 @@ if selected_section == "Operations":
         tooltip=["Metric", "Month", "Value"]
     )
 
-    text = base.mark_text(baseline="middle", fontSize=12).encode(
+    text = base.mark_text(baseline="middle", fontSize=11).encode(
         text="Value Display:N",
         color=alt.value("black")
     )
 
-    st.altair_chart((heat + text).properties(width=350, height=160), use_container_width=True)
-
+    # Render chart
+    st.altair_chart((heat + text).properties(width=360, height=180), use_container_width=True)
 
 # --- Production Section ---
 if selected_section == "Production":
